@@ -2,6 +2,8 @@ package main
 
 import "fmt"
 
+const NAME string = "NAME"
+
 // 使用const定义枚举
 const (
 	BJ = 0
@@ -14,7 +16,7 @@ const (
 const (
 	CN = iota + 5
 	USA
-	JP
+	JP = iota * 10
 	FH
 )
 

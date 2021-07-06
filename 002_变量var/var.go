@@ -43,5 +43,11 @@ func main() {
 		z4 = "pai"
 	)
 	println("-z1- ", z1, " -z2- ", z2, "-z3- ", z3, "-z4- ", z4)
-
+	var (
+		f1 int
+		f2 string
+		f3 float32
+		f4 bool
+	)
+	println(f1, f2, f3, f4)
 }
