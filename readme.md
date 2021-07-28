@@ -1,5 +1,6 @@
-<div style="text-align: center;">GO 学习笔记 </div>
---
+<div style="text-align: center;"><h1>GO 学习笔记 </h1></div>
+
+
 
 # 文件模块初始化
 
@@ -86,7 +87,6 @@ func funcsn(str string, num int) (ans1 int, ans2 string) {
 
 + **若`return`调用函数 且存在`defer` 语句 则 `return`先于`defer`执行  (`defer`最先入栈，在`}`前被调用)**
   ![img.png](docs/img/img4.png)
-  
 ## 5. type和struct
 + `type`关键字可以声明自定义的类型或者是已有类型的别名,`type name TYPE`
 + `struct`可以声明结构体,配合`type`可以声明自定义类型
