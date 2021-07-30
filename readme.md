@@ -139,7 +139,7 @@ Size float64
 Val string
 }
 
-func (t *File) Reader(){
+func (t *File) Reader() string{
 return t.Val
 }
 
@@ -160,6 +160,9 @@ slice:= make([]int, 4, 5)
 ```
 
 其中参数为数据类型，长度（len）和容量（cap）
+
+## 8. Go
+
 
 # 数据结构
 
@@ -273,10 +276,152 @@ Local: "亚洲",
 ```
 
 ## 接口
+
 + 使用`interface`来定义接口，若一个结构体的方法包含了接口中的全部方法即为实现
 + `interface{}`表示空接口，**若其作为参数可以接收一切数据结构**
 + `val,o:=arg.(X)`可以对`interface{}`进行断言，判断其是否为X,并返回值`val`和是否是`o`
++ **接口表示的是指向实现类的指针，因此需要使用&来将值转换为指针赋值给接口**
 
-# 反射
+```go
+package main
 
-![img.png](docs/img/img7.png)
+type IOR interface {
+	Reader() string
+}
+
+type IOW interface {
+	Write(val string)
+}
+
+type File struct {
+	Name string
+	Size float64
+	Val  string
+}
+
+func (t *File) Reader() string {
+	return t.Val
+}
+
+func (t *File) Write(val string) {
+	t.Val = val
+}
+
+func main() {
+	file := File{"file", 12800, "this is file"}
+	var r IOR
+	// 接口是指针 所以用&来获取地址
+	r = &file
+	println(r.Reader())
+	var w IOW
+	w = r.(IOW)
+	w.Write("this is new file")
+	println(file.Reader())
+}
+```
+
+# 反射与序列化
+
+## 结构Pair
+
++ 在Go的所有变量中均由一个`pair`组成，其包含数据类型`type`和数据值`value`,其中类型包括静态类型（string、int等基本数据类型）和具体类型（结构体等）
++ 在具体类型下，会包含类型其中的字段、方法
+  ![img.png](docs/img/img7.png)
+
+## 反射
+
++ `reflect`包下有相关方法用于反射获取变量的`pair`
++ `reflect.ValueOf()`可以获取变量的值，`reflect.TypeOf()`可以获取变量的类型
++ type下的`NumXxx()`方法可以获取某个类型的数量，用于便利，`Xxxx(i int)`方法可以获取某个类型中第i个的内容
++ 对于`Method`,**只有public（首字母大写）且为值传递才可以反射获取**
+
+```go
+func main(){
+user := User{}
+theType := reflect.TypeOf(user)
+// 获取字段数量
+for i := 0; i < theType.NumField(); i++ {
+// 获取第i个字段
+field := theType.Field(i)
+fmt.Println(field)
+fmt.Println(field.Name) // 字段的名称
+// 获取第i个字段的值
+val := theVal.Field(i)
+fmt.Println(val)
+}
+// 获取其中的方法函数
+for i := 0; i < theType.NumMethod(); i++ {
+// 获取方法
+method := theType.Method(i)
+fmt.Printf("the %d method is %T %v \n", i, method, method)
+// 获取方法名称等
+fmt.Println(method.Name)
+fmt.Println("----------")
+}
+}
+```
+
+## TAG
+
++ 在定义声明结构体的字段时，可以**使用两个反引号``**来标识字段的TAG，TAG可以在后续解析，主要用于序列化和ORM
++ 反射获取字段后可以通过`TAG`属性获取其标签，并通过`GET`来获取标签的值
++ TAG的格式为`key:value`,其中value的类型为字符串需要加引号
+
+```go
+type Info struct {
+// 使用 `` 来定义标签Tag
+Name string `info:"name" doc:"名称"`
+Msg  string `info:"sex"`
+}
+func getTag(arg interface{}) {
+t := reflect.TypeOf(arg)
+
+for i := 0; i < t.NumField(); i++ {
+// 获取第i个字段的标签中  info 字段
+info := t.Field(i).Tag.Get("info")
+doc := t.Field(i).Tag.Get("doc")
+fmt.Println("info =", info)
+fmt.Println("doc =", doc)
+}
+}
+```
+
+## 序列化
++ `encoding/json`包下有序列化相关的方法
++ **使用`json`标签可以指定序列化后的名称**，如果不指定将使用字段名称
++ `json.Marshal()`可以将结构体序列化，`json.Unmarshal(json,obj)`可以将json反序列化为obj
+```go
+type Movie struct {
+	Title  string   `json:"title"`
+	Year   int      `json:"year"`
+	Price  int      `json:"rmb"`
+	Actors []string `json:"actors"`
+}
+
+func main() {
+	movie := Movie{"ATM", 1999, 10, []string{"DG", "LINA", "YG"}}
+
+	// 编码  结构体 --》 json
+	jsonStr, err := json.Marshal(movie)
+	if err != nil {
+		fmt.Println("json marshal fail")
+		return
+	}
+
+	fmt.Printf("json= %s\n", jsonStr)
+
+	// json --》 结构体
+	myMove := Movie{}
+	err = json.Unmarshal(jsonStr, &myMove)
+	if err != nil {
+		fmt.Println("encode to struct have err")
+		return
+	}
+	fmt.Println(myMove)
+}
+```
+
+# Go并发
+
+
+
