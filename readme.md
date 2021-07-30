@@ -72,7 +72,20 @@ FH
 + `func` 用于定义函数，格式为`func name(per)(return){}`,可以定义多个参数和多个返回值
 + 返回值可以以形参的方式进行声明,其默认值为内存0填充,在函数体中可以对其进行赋值,**若不return值将返回声明的返回形参**
 + 调用有返回值的函数,可以接收多个返回值,**若接收个数少于返回个数,按照返回声明的先后顺序返回之前的**
++ 可以在一个函数内添加匿名函数，其定义和普通函数相同但没有函数名，**需要在最后的}后加入()及其参数表示执行该函数**
+```go
+package main
+func main(){
+	go func(){
+		println("222")
+    }() // ()表示无参数执行
+    
+    func(val int){
+    	println("val is ",val)
+    }(10) // 传入参数并执行
+}
 
+```
 ```go
 func funcsn(str string, num int) (ans1 int, ans2 string) {
 fmt.Println("str= ", str)
@@ -161,8 +174,29 @@ slice:= make([]int, 4, 5)
 
 其中参数为数据类型，长度（len）和容量（cap）
 
-## 8. Go
+## 8. go
++ `go` 用于启动一个`goroutine`,一个goroutine即一个协程（剥离CPU调度的线程）
++ `go`后面跟上一个函数方法或者匿名函数
++ **当`main`退出后，所有的`goroutine`都将停止**
 
+## 9.select
++ `select-case`用于监听多路`channel`
++ 每一个case分支对应一个channel的读写行为，当某一路可以执行时会执行当前路，不会按顺序阻塞
++ 配合`for-select-case`可以对多个channel进行监听
+```go
+package main
+func task(c1,c2,c3,c4 chan int){
+  var x,y int
+	for{
+		select{
+		case x=<-c1:y=x
+		case c2<-y:y=x+y
+		case y=<-c3:x=y+x
+		case c4<-x:y=x
+        }
+    }
+}
+```
 
 # 数据结构
 
@@ -187,6 +221,18 @@ slice:= make([]int, 4, 5)
 + 使用`map[ok]=nv`进行修改操作
 + 使用`map[k]`进行查找获取值
 + **当删除key不存在时不会报错，当查找key不存在时为相同类型的0内存填充**
+
+## channel
++ `channle`是一种内嵌的数据结构用于在不同的goroutine间传递消息，其需要被初始化才可以使用
++ 定义为`ch:=make(chan X,n)`,X为传递的类型，n为缓冲区大小可以省略
++ 使用 `ch<- x`可以向通道中写入数据，`<-ch`可以消费数据，若需要接收可以使用`data,ok:=<-ch`，其中data为其中的数据，ok表示该管道是否还有数据或是否关闭
++ 当多个并发goroutine使用管道进行消息传递时，若两个不同步且缓冲区无或已满则当一方到达写入或消费时候会阻塞等待另一方到达后才会执行
++ 当有缓冲区存在时候，写入方和读取方会依次写入和读取直到缓冲区写满或为空时才会阻塞
++ 使用`close(ch)`可以关闭管道，当管道关闭后写入会报错，若管道有缓存则可以继续读取
+![img_1.png](docs/img/img11.png)
+![img.png](img.png)
+![img.png](docs/img/img10.png)
+
 
 # 面向对象
 
@@ -422,6 +468,8 @@ func main() {
 ```
 
 # Go并发
+![img.png](docs/img/img8.png)
 
+![img.png](docs/img/img9.png)
 
 
