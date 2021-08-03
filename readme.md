@@ -472,4 +472,25 @@ func main() {
 
 ![img.png](docs/img/img9.png)
 
+# Go mod
+1. 设置启用Go Mod
+```shell
+go env -w GO111MODULE=on
+```
+2. 设置Go Proxy,`direct`为若代理库不存在则回源头拉取
+```shell
+go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
+# 或https://goproxy.cn 
+```
+3. 创建Go Mod 项目
+```shell
+go mod init XXXX
+# XXX 为项目名称
+```
+Go mod 项目下会有`go.mod`文件来记录项目中所依赖的包的版本，**Go Mod项目可以放在任何目录**，同时项目可能会出现`go.sum`文件来校验项目中依赖的包
 
+4. edit替换版本
+```shell
+go mode edit -replace=A=B
+```
+可以将A版本重定向到B版本，**其可以完成版本切换或者代理重定向**
