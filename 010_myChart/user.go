@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"strings"
 )
 
 type User struct {
@@ -69,15 +70,17 @@ func (the *User) OffOline() {
 
 // Handler 处理
 func (the *User) Handler(msg string) {
-	if msg == "who" {
+	if msg == "--help" {
+		the.MsgCallBack(Help())
+	} else if msg == "--list" {
 		list := "-----在线列表-----"
 		for _, user := range the.server.Users {
 			list += "\n" + fmt.Sprintf("[%s](%s)", user.Name, user.Addr)
 		}
 		list += "\n------------------\n"
 		the.MsgCallBack(list)
-	} else if len(msg) > 7 && msg[:7] == "rename " {
-		name := msg[7:]
+	} else if len(msg) > 9 && msg[:9] == "--rename " {
+		name := msg[9:]
 		// 更新表
 		the.server.lock.Lock()
 		_, ok := the.server.Users[name]
@@ -91,6 +94,23 @@ func (the *User) Handler(msg string) {
 			the.MsgCallBack(LogMsg("System", the, "名称修改成功"))
 		}
 		the.server.lock.Unlock()
+	} else if len(msg) > 5 && msg[:5] == "--to " {
+		// 获取发送的用户名
+		index := strings.Index(msg, ">")
+		if index == -1 || len(msg) < index+1 {
+			the.MsgCallBack("命令参数错误，请使用[--help]查询用法\n" + Help())
+			return
+		}
+		un := msg[5:index]
+		message := msg[index+1:]
+		// 获取用户
+		user, ok := the.server.Users[un]
+		if !ok {
+			the.MsgCallBack(fmt.Sprintf("用户[%s]不存在,请使用[--list]获取用户列表\n", un))
+			return
+		}
+		// 发送消息
+		user.MsgCallBack(the.GetMsgBefore() + message)
 	} else {
 		the.server.SendMsg(the, msg+"\n")
 	}

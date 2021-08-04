@@ -36,3 +36,14 @@ func LogMsg(mod string, user *User, msg ...interface{}) string {
 	fmt.Println(log)
 	return log
 }
+
+// Help 帮助菜单
+func Help() (help string) {
+	help = "--list"
+	help += "\n  查看主线列表 用法【--list】"
+	help += "\n--rename"
+	help += "\n  修改用户名 用法【--rename [新名称]】"
+	help += "\n--to"
+	help += "\n  向指定用户发送消息 用法【--to [用户名]>[消息内容]】\n"
+	return
+}

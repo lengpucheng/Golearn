@@ -6,5 +6,5 @@ telnet ip port
 */
 func main() {
 	Log("myChart启动")
-	NewServer("127.0.0.1", 8888).Start()
+	NewServer("172.23.160.1", 8888).Start()
 }

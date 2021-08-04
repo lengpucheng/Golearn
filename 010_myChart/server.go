@@ -87,7 +87,7 @@ func (the *Server) Handle(conn net.Conn) {
 			// 该分支为空 会重新执行select after被刷新
 		// 相当于一个管道 一段时间后会有数据进入
 		case <-time.After(MaxTime):
-			user.MsgCallBack(fmt.Sprintf("超时%d秒未响应，已断开链接", MaxTime/time.Second))
+			user.MsgCallBack(fmt.Sprintf("超时%d秒未响应，已断开链接\n", MaxTime/time.Second))
 			delete(the.Users, user.Name)
 			// 强制退出
 			close(user.Channel)
